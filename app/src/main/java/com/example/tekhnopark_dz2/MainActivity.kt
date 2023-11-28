@@ -1,13 +1,17 @@
 package com.example.tekhnopark_dz1
 
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.tekhnopark_dz2.DataObject
 import com.example.tekhnopark_dz2.GifsAdapter
+import com.example.tekhnopark_dz2.R
+import com.example.tekhnopark_dz2.RecyclerViewFragment
 import com.example.tekhnopark_dz2.databinding.MainActivityBinding
 import com.example.tekhnopark_dz2package.RetrofitController
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -39,18 +43,33 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        setProgressBar()
+        val context: Context = this
         CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
             Log.d(null, "ON COROUTINE SCOPE")
             val gifs = retrofitController.requestGifs()
             withContext(Dispatchers.Main) {
                 Log.d(null, "SET RECYCLER FRAGMENT")
-                setRecyclerViewFragment(gifs)
+                setRecyclerView(context,gifs,retrofitController)
             }
         }
 
 
     }
+
+    fun setProgressBar(){
+        supportFragmentManager.beginTransaction().run {
+            add(R.id.container, Fragment(R.layout.progress_bar_fragment),"PROGRESS BAR")
+            commit()
+        }
+    }
+    fun setRecyclerView(context: Context, gifs: MutableList<DataObject>, retrofitController: RetrofitController){
+        supportFragmentManager.beginTransaction().run {
+            add(R.id.container,RecyclerViewFragment(context,gifs,retrofitController),"PROGRESS BAR")
+            commit()
+        }
+    }
+
 
 
     fun setRecyclerViewFragment(gifs: MutableList<DataObject>) {
